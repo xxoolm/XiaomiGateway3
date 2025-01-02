@@ -1,4 +1,5 @@
 {
-    "name": "Xiaomi Gateway 3",
-    "render_readme": true
+  "name": "Xiaomi Gateway 3",
+  "homeassistant": "2023.2.0",
+  "render_readme": true
 }

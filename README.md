@@ -4,28 +4,33 @@
 
 Home Assistant custom component for control **Xiaomi Multimode Gateway** (aka Gateway 3), **Xiaomi Multimode Gateway 2**, **Aqara Hub E1** on default firmwares over LAN.
 
-Thanks to [@Serrj](https://community.home-assistant.io/u/serrj-sv/) for [instruction](https://community.home-assistant.io/t/xiaomi-mijia-smart-multi-mode-gateway-zndmwg03lm-support/159586/61) how to enable Telnet on old firmwares. And thanks to an unknown researcher for [instruction](https://gist.github.com/zvldz/1bd6b21539f84339c218f9427e022709) how to open telnet on new firmwares.
+| Gateway                         | Model                 | Supported         |
+|---------------------------------|-----------------------|-------------------|
+| Xiaomi Multimode Gateway (CN)   | ZNDMWG03LM            | **yes**           |
+| Xiaomi Multimode Gateway (EU)   | ZNDMWG02LM, YTC4044GL | **yes**           |
+| Xiaomi Multimode Gateway 2 (CN) | DMWG03LM              | **yes**           |
+| Xiaomi Multimode Gateway 2 (EU) | ZNDMWG04LM, BHR6765GL | **yes**           |
+| Aqara Hub E1 (CN)               | ZHWG16LM              | **yes**           |
+| Xiaomi Gateway 2 (CN)           | DGNWG02LM             | **no**, [goto][1] |
+| Xiaomi Gateway (EU)             | DGNWG05LM             | **no**, [goto][2] |
 
-> **Note:** Use another integrations for support:
-> 
-> - Xiaomi Gateway 2 (DGNWG02LM) - [external link](https://www.home-assistant.io/integrations/xiaomi_aqara/)
-> - Xiaomi Gateway EU (DGNWG05LM), Aqara Hub (ZHWG11LM) - [external link](https://openlumi.github.io/)
-> - Aqara G2H (ZNSXJ12LM), Aqara H1 CN (QBCZWG11LM), Aqara M1S CN (ZHWG15LM), Aqara M2 CN (ZHWG12LM), Aqara P3 CN (KTBL12LM) - [external link](https://github.com/niceboygithub/AqaraGateway)
+**Other.** Aqara Hub E1 (EU), Aqara G2H (CN), Aqara H1 (CN), Aqara M1S (CN), Aqara M2 (CN), Aqara P3 (CN) | HE1-G01, ZNSXJ12LM, QBCZWG11LM, ZHWG15LM, ZHWG12LM, KTBL12LM - **no**, [goto][3]
+
+[1]: https://www.home-assistant.io/integrations/xiaomi_aqara/
+[2]: https://openlumi.github.io/
+[3]: https://github.com/niceboygithub/AqaraGateway
+
+Thanks to [@Serrj](https://community.home-assistant.io/u/serrj-sv/) for [instruction](https://community.home-assistant.io/t/xiaomi-mijia-smart-multi-mode-gateway-zndmwg03lm-support/159586/61) how to enable Telnet on old firmwares. And thanks to an unknown researcher for [instruction](https://gist.github.com/zvldz/1bd6b21539f84339c218f9427e022709) how to open telnet on new firmwares.
 
 ---
 
 * [Supported Firmwares](#supported-firmwares)
-* [Regional Restrictions](#regional-restrictions)
 * [Supported Devices](#supported-devices)
   * [Add new device](#add-new-device) 
-  * [Supported Gateways](#supported-gateways)
-  * [Supported Xiaomi Zigbee](#supported-xiaomi-zigbee)
-  * [Supported Other Zigbee](#supported-other-zigbee)
-  * [Supported Xiaomi BLE](#supported-xiaomi-ble)
-  * [Supported Xiaomi Mesh](#supported-xiaomi-mesh)
 * [Installation](#installation)
 * [Configuration](#configuration)
 * [Network configuration](#network-configuration)
+* [Regional Restrictions](#regional-restrictions)
 * [Statistics table](#statistics-table)
 * [Gateway controls](#gateway-controls)
 * [Advanced config](#advanced-config)
@@ -48,21 +53,123 @@ Thanks to [@Serrj](https://community.home-assistant.io/u/serrj-sv/) for [instruc
 
 ## Supported Firmwares
 
-Component support original gateway firmware. You do not need to manually open, solder and flash the devices.
+| Gateway                            | Firmwares     | Required      |
+|------------------------------------|---------------|---------------|
+| Xiaomi Multimode Gateway (CN/EU)   | 1.5.0 - 1.5.4 | only Token    |
+| Xiaomi Multimode Gateway 2 (CN/EU) | 1.0.3 - 1.0.6 | only Token    |
+| Aqara Hub E1 (CN)                  | 4.0.1         | only Token    |
+| Xiaomi Multimode Gateway (CN/EU)   | 1.5.5 - 1.5.6 | Token and Key |
+| Xiaomi Multimode Gateway 2 (CN/EU) | 1.0.7         | Token and Key |
 
-The following versions are confirmed and supported:
+**PS.** Firmwares from 1.4.6 to 1.4.7 for Xiaomi Multimode Gateway may work but **UNSUPPORTED**. Please don't create issues if something doesn't work on them.
 
-- **Home Assistant** from `2022.12.x` to `2023.1.x`
-- **Xiaomi Multimode Gateway CN/EU** from `1.5.0_xxxx` to `1.5.4_xxxx`
-- **Xiaomi Multimode Gateway 2 CN/EU** from `1.0.3_xxxx` to `1.0.6_xxxx`
-- **Aqara Hub E1 CN** - `4.0.1_0001`
+**PS.** For "*only Token*" firmwares integration will get Key automatically and save it to integration settings and to `/config/.storage/xiaomi_gateway3/keys.json`. Please save it safely somewhere else.
 
-For Xiaomi Multimode Gateway you can:
+Recommended firmwares:
+- Xiaomi Multimode Gateway (CN/EU) - 1.5.4 - 1.5.6
+- Xiaomi Multimode Gateway 2 (CN/EU) - 1.0.6 - 1.0.7
+- Aqara Hub E1 (CN) - 4.0.1
+
+**HOWTO get token** [read here](#obtain-mi-home-device-token)
+
+**HOWTO get key**
+
+| Gateway                                                                                 | Situation                                                                           | Solution                                                             |
+|-----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| Xiaomi Multimode Gateway (CN/EU)                                                        | firmware 1.5.4 and lower                                                            | setup integration and use only Token                                 |
+| Xiaomi Multimode Gateway 2 (CN/EU)                                                      | firmware 1.0.6 and lower                                                            | setup integration and use only Token                                 |
+| Aqara Hub E1 (CN)                                                                       | firmware 4.0.1 and lower                                                            | setup integration and use only Token                                 |
+| Xiaomi Multimode Gateway (CN/EU)                                                        | firmware 1.5.5 and more, but shipped from the factory with firmware 1.4.6 and lower | [use button click method](https://github.com/AlexxIT/Blog/issues/13) |
+| Xiaomi Multimode Gateway (CN/EU), Xiaomi Multimode Gateway 2 (CN/EU), Aqara Hub E1 (CN) | worked previously in the Hass, but you updated it to latest firmware                | [use button click method](https://github.com/AlexxIT/Blog/issues/13) |
+| Xiaomi Multimode Gateway (CN/EU)                                                        | firmware 1.5.5 and more, never worked in the Hass                                   | [use UART](https://github.com/AlexxIT/XiaomiGateway3/issues/1057)    |
+| Xiaomi Multimode Gateway 2 (CN/EU)                                                      | firmware 1.0.7 and more, never worked in the Hass                                   | [use UART](https://github.com/AlexxIT/XiaomiGateway3/issues/1166)    |
+| Aqara Hub E1 (CN)                                                                       | firmware 4.0.4 and more, never worked in the Hass                                   | no solution                                                          |
+
+- Read more https://github.com/AlexxIT/Blog/issues/13
+
+For Xiaomi Multimode Gateway you also can:
 
 - optional update firmware via [Telnet](https://github.com/zvldz/mgl03_fw/tree/main/firmware)
 - optional install [custom firmware](https://github.com/zvldz/mgl03_fw/tree/main/firmware)
 
 Please, not ask me why you need it.
+
+## Supported Devices
+
+Gateway Zigbee chip can work in three modes:
+
+**1. Mi Home (default)**
+
+   - Support Xiaomi/Aqara Zigbee devices simultaneously in Mi Home and Hass
+   - Support some Zigbee devices from other brands only in Hass
+   
+**2. Zigbee Home Automation (ZHA)**
+
+   - Support for [Zigbee devices of hundreds of brands](https://zigbee.blakadder.com/zha.html) only in Hass ([read more](#zigbee-home-automation-mode))
+
+**3. Zigbee2mqtt**
+
+   - Support for [Zigbee devices of hundreds of brands](https://www.zigbee2mqtt.io/supported-devices/) in MQTT ([read more](#zigbee2mqtt-mode))
+
+Zigbee devices in ZHA or z2m modes doesn't controlled by this integration!
+
+Xiaomi BLE and Mesh devices works simultaneously in Mi Home and Hass. No matter which zigbee mode is used.
+
+Matter devices supported only for Xiaomi Multimode Gateway 2 (EU) with fw 1.0.7_0019 and higher.
+
+Some BLE devices may or may not have battery data depending on the device firmware.
+
+Gateway entity shows connection state to gateway. It has many useful information in attributes.
+
+Zigbee, BLE, Mesh and Matter devices has optional `zigbee`, `ble`, `mesh`, `matter` that shows `last_report` time in state and may useful intormation in attributes.
+
+### Add new device
+
+You can change the operation of an existing device or add support for any **Xiaomi Zigbee**, **Xiaomi BLE**, **Xiaomi Mesh** or any **other brand Zigbee** device by writing an [external converter](https://github.com/AlexxIT/XiaomiGateway3/wiki/Converters).
+
+It is welcomed if you return a working converter to integration. You can create an issue or make a pull request.
+
+## Installation
+
+[HACS](https://hacs.xyz/) > Integrations > Plus > **XiaomiGateway3** > Install
+
+Or manually copy `xiaomi_gateway3` folder from [latest release](https://github.com/AlexxIT/XiaomiGateway3/releases/latest) to `/config/custom_components` folder.
+
+## Configuration
+
+[Settings](https://my.home-assistant.io/redirect/config/) > [Integrations](https://my.home-assistant.io/redirect/integrations/) > Add Integration > [Xiaomi Gateway3](https://my.home-assistant.io/redirect/config_flow_start/?domain=xiaomi_gateway3)
+
+If the integration is not in the list, you need to clear the browser cache.
+
+You need to add integration two times:
+
+1. Cloud version. It used ONLY to load tokens and names for your devices from cloud.
+2. Gateway. It adds your gateway and all connected Zigbee, BLE and Mesh devices.
+
+You may skip 1st step if you know token for you Gateway. If you have multiple Gateways - repeat step 2 for each of them.
+
+You need gateway `key` only for Xiaomi Multimode Gateway on fw 1.5.5, [read more](https://github.com/AlexxIT/Blog/issues/13).
+
+**ATTENTION:** If you using two Hass with one gateway - you should use same integration version on both of them! 
+
+## Network configuration 
+
+All settings are **important** or you may have an unstable operation of the gateway.
+
+- **Shared LAN** between Gateway and Hass server. You may use VPN, but both IP-address should be in **same network subnet**!
+- **Open ping** (accept ICMP) from Gateway to Router
+- **Fixed IP-address** for Gateway on your Router
+- Wi-Fi Router settings:
+   - **Fixed channel** from 1 to 11
+   - Channel width: **20MHz** (don't use 40MHz)
+   - Authentication: WPA2 (don't use WPA3)
+- MikroTik Router settings:
+   - Wireless > Security Profiles > Group Key Update: **01:00:00** (1 hour or more)
+- Keenetic Router settings: 
+   - Disable "[Airtime Fairness](https://help.keenetic.com/hc/en-us/articles/360009149400)" for 2.4GHz
+   - Disable "[256-QAM](https://help.keenetic.com/hc/en-us/articles/4402854785170)" for 2.4GHz
+
+With the following settings the operation of the gateway may be **unstable**: different subnets, closed ping to router, Wi-Fi channel 40MHz, WPA3.
 
 ## Regional Restrictions
 
@@ -92,343 +199,63 @@ If you control your devices from Home Assistant - it makes absolutely no differe
 
 **PS.** Some Aqara devices are not supported at all in Mi Home in any version, e.g. **Aqara Door Lock N100 Zigbee version**.
 
-## Supported Devices
+## Multiple Gateways
 
-Gateway Zigbee chip can work in three modes:
+Integration support multiple gateways in one MiHome account.
 
-**1. Mi Home (default)**
+Zigbee devices can be attached (paired) to only one gateway. I recommend to split your Zigbee network into several gateways, so it will be more stable. I recommend not to mix battery and powered devices in the same network.
 
-   - Support [Xiaomi/Aqara Zigbee devices](#supported-xiaomi-zigbee) simultaneously in Mi Home and Hass
-   - Support [some Zigbee devices](#supported-other-zigbee) from other brands only in Hass
-   
-**2. Zigbee Home Automation (ZHA)**
+Bluetooth BLE and Mesh devices can work simultaneously with all gateways. In this technology, there is no binding to the gateway.
 
-   - Support for [Zigbee devices of hundreds of brands](https://zigbee.blakadder.com/zha.html) only in Hass ([read more](#zigbee-home-automation-mode))
+If a user has more than one Bluetooth Mesh Gateway on the network - only one will send Bluetooth device data to the cloud. But this integration can continue to collect Bluetooth data from all gateways simultaneously and locally.
 
-**3. Zigbee2mqtt**
+## Device command select
 
-   - Support for [Zigbee devices of hundreds of brands](https://www.zigbee2mqtt.io/supported-devices/) in MQTT ([read more](#zigbee2mqtt-mode))
+**Device info** - displays device information in notification.
 
-Zigbee devices in ZHA or z2m modes doesn't controlled by this integration!
+```yaml
+extra:
+  cloud_fw: 2.1.1_0025               # device firmware from cloud integration
+  cloud_name: Dev Presence Sensor 2  # device name from cloud integration
+  did: '1005xxxxxx'                  # device ID from MiHome
+  mac: 64:9e:31:xx:xx:xx
+  market_brand: Linptech
+  market_model: ES1ZB, linp.sensor_occupy.hb01
+  market_name: Presence Sensor ES1
+  rssi_54ef44xxxxxx: -69             # rssi for each gateway
+  rssi_54ef55xxxxxx: -79
+  seq: 185                           # message sequence number
+  type: mesh                         # device type: gateway, zigbee, ble, mesh, group, matter
+last_report:                         # last decoded report from device
+  not_occupancy_duration: 11
+last_report_gw:                      # the gateway that received the last report
+  fw_ver: 1.0.7_0021
+  host: 192.168.1.123
+  mac: 54:ef:44:xx:xx:xx
+  model: lumi.gateway.mcn001
+  name: Gateway 2
+last_report_ts: 48s                  # how long ago was the last message
+last_seen:
+  54ef44xxxxxx: 48s                  # how long ago each gateway seen device
+  54ef55xxxxxx: 48s
+listeners: 7                         # subscribers for device updates (internal logic)
+model: 10441                         # device model (number for BLE and Mesh, string for Zigbee and Matter)
+params:                              # all decoded params in one message
+  action: away
+  distance: 5.15
+  illuminance: 237.0
+  not_occupancy_duration: 11
+  occupancy: false
+  occupancy_duration: 0
+ttl: 50m                             # time to live (TTL) - available timeout (maximum last_seen value)
+uid: 649e31xxxxxx                    # hass UID - "12 hex mac" for BLE and Mesh, "0x + 16 hex IEEE" for Zigbee 
+```
 
-Xiaomi BLE and Mesh devices works simultaneously in Mi Home and Hass. No matter which zigbee mode is used.
+**Device update** - manual call for device params update. Don't work for many Zigbee battery devices. Don't work for all BLE devices. Don't work for offline Mesh devices.
 
-Other Zigbee, BLE and Mesh devices not from the list below also may work with limited support of functionality. 
+**Zigbee reconfig** - start the initial setup process for 3rd party Zigbee devices
 
-Some BLE devices have no known default entities (asterisk in the list). Their entities appear when receiving data from the devices.
-
-Some BLE devices may or may not have battery data depending on the device firmware.
-
-Gateway entity shows connection state to gateway. It has many useful information in attributes.
-
-Zigbee and BLE devices has optional `zigbee` and `ble` that shows `last_seen` time in state and may useful intormation in attributes.
-
-Every device has support level (column S):
-
-- 5 - The device can do everything it can do
-- 4 - The device works well, missing some settings
-- 3 - The device works, but it is missing some functionality
-- empty - Unknown level, but device may work well
-- 1/2 - The device doesn't work well (they don't show in the table)
-
-### Add new device
-
-You can change the operation of an existing device or add support for any **Xiaomi Zigbee**, **Xiaomi BLE**, **Xiaomi Mesh** or any **other brand Zigbee** device by writing an [external converter](https://github.com/AlexxIT/XiaomiGateway3/wiki/Converters).
-
-It is welcomed if you return a working converter to integration. You can create an issue or make a pull request.
-
-<!--supported-->
-### Supported Gateways
-
-Total devices: 5
-
-|Brand|Name|Model|Entities|S|
-|---|---|---|---|---|
-|Aqara|Hub E1 CN|[ZHWG16LM](https://home.miot-spec.com/s/lumi.gateway.aqcn02)|command, data, gateway|3|
-|Xiaomi|Multimode Gateway 2 CN|[DMWG03LM](https://home.miot-spec.com/s/lumi.gateway.mcn001)|command, data, gateway|3|
-|Xiaomi|Multimode Gateway 2 EU|[ZNDMWG04LM](https://home.miot-spec.com/s/lumi.gateway.mgl001)|command, data, gateway|3|
-|Xiaomi|Multimode Gateway CN|[ZNDMWG03LM](https://home.miot-spec.com/s/lumi.gateway.mgl03)|alarm, command, data, gateway|4|
-|Xiaomi|Multimode Gateway EU|[ZNDMWG02LM](https://home.miot-spec.com/s/lumi.gateway.mgl03)|alarm, command, data, gateway|4|
-
-### Supported Xiaomi Zigbee
-
-Total devices: 88
-
-|Brand|Name|Model|Entities|S|
-|---|---|---|---|---|
-|Aqara|Air Quality Monitor CN|[VOCKQJK11LM](https://home.miot-spec.com/s/lumi.airmonitor.acn01)|temperature, humidity, tvoc, battery, battery_low, display_unit||
-|Aqara|Bulb CN|[ZNLDP12LM](https://home.miot-spec.com/s/lumi.light.aqcn02)|light, power_on_state||
-|Aqara|Button CN|[WXKG11LM](https://home.miot-spec.com/s/lumi.remote.b1acn01)|action, battery, battery_low, chip_temperature||
-|Aqara|Cube EU|[MFKZQ01LM](https://home.miot-spec.com/s/lumi.sensor_cube.aqgl01)|action, battery|5|
-|Aqara|Curtain|[ZNCLDJ11LM](https://home.miot-spec.com/s/lumi.curtain)|motor||
-|Aqara|Curtain B1 EU|[ZNCLDJ12LM](https://home.miot-spec.com/s/lumi.curtain.hagl04)|motor, battery||
-|Aqara|Door Lock S1|[ZNMS11LM](https://home.miot-spec.com/s/lumi.lock.aq1)|square, reverse, latch, battery, key_id, action||
-|Aqara|Door Lock S2 CN|[ZNMS12LM](https://home.miot-spec.com/s/lumi.lock.acn02)|square, reverse, latch, battery, key_id, action||
-|Aqara|Door Lock S2 Pro CN|[ZNMS13LM](https://home.miot-spec.com/s/lumi.lock.acn03)|lock, square, reverse, latch, battery, action||
-|Aqara|Door/Window Sensor|[MCCGQ11LM](https://home.miot-spec.com/s/lumi.sensor_magnet.aq2)|contact, battery, battery_low, chip_temperature||
-|Aqara|Door/Window Sensor E1 CN|[MCCGQ14LM](https://home.miot-spec.com/s/lumi.magnet.acn001)|contact, battery, battery_low||
-|Aqara|Double Wall Button|[WXKG02LM](https://home.miot-spec.com/s/lumi.sensor_86sw2.es1)|action, battery, battery_low, chip_temperature||
-|Aqara|Double Wall Button D1 CN|[WXKG07LM](https://home.miot-spec.com/s/lumi.remote.b286acn02)|action, battery, battery_low, chip_temperature||
-|Aqara|Double Wall Button E1 CN|[WXKG17LM](https://home.miot-spec.com/s/lumi.remote.acn004)|action, battery, mode||
-|Aqara|Double Wall Button H1|[WRS-R02](https://home.miot-spec.com/s/lumi.remote.b28ac1)|action, battery, battery_low, mode||
-|Aqara|Double Wall Switch|[QBKG12LM](https://home.miot-spec.com/s/lumi.ctrl_ln2.aq1)|channel_1, channel_2, power, energy, action, wireless_1, wireless_2, power_on_state, led||
-|Aqara|Double Wall Switch (no N)|[QBKG03LM](https://home.miot-spec.com/s/lumi.ctrl_neutral2)|channel_1, channel_2, action, wireless_1, wireless_2, led||
-|Aqara|Double Wall Switch D1 CN (no N)|[QBKG22LM](https://home.miot-spec.com/s/lumi.switch.b2lacn02)|channel_1, channel_2, action, wireless_1, wireless_2, led||
-|Aqara|Double Wall Switch D1 CN (with N)|[QBKG24LM](https://home.miot-spec.com/s/lumi.switch.b2nacn02)|channel_1, channel_2, power, energy, action, wireless_1, wireless_2, power_on_state, led||
-|Aqara|Double Wall Switch E1 (no N)|[QBKG39LM](https://home.miot-spec.com/s/lumi.switch.b2lc04)|channel_1, channel_2, action, wireless_1, wireless_2, led, power_on_state, mode||
-|Aqara|Double Wall Switch E1 (with N)|[QBKG41LM](https://home.miot-spec.com/s/lumi.switch.b2nc01)|channel_1, channel_2, action, led, led_reverse, power_on_state, wireless_1, wireless_2||
-|Aqara|Double Wall Switch H1 CN (no N)|[QBKG28LM](https://home.miot-spec.com/s/lumi.switch.l2acn1)|channel_1, channel_2, action, led, power_on_state, wireless_1, wireless_2||
-|Aqara|Double Wall Switch H1 CN (with N)|[QBKG31LM](https://home.miot-spec.com/s/lumi.switch.n2acn1)|channel_1, channel_2, energy, power, action, led, led_reverse, power_on_state, wireless_1, wireless_2||
-|Aqara|Double Wall Switch H1 EU (no N)|[WS-EUK02](https://home.miot-spec.com/s/lumi.switch.l2aeu1)|channel_1, channel_2, action, led, power_on_state, wireless_1, wireless_2||
-|Aqara|Double Wall Switch H1 EU (with N)|[WS-EUK04](https://home.miot-spec.com/s/lumi.switch.n2aeu1)|channel_1, channel_2, energy, power, action, led, led_reverse, power_on_state, wireless_1, wireless_2||
-|Aqara|Double Wall Switch US (with N)|[WS-USC04](https://home.miot-spec.com/s/lumi.switch.b2naus01)|channel_1, channel_2, action, energy, power, led, power_on_state, wireless_1, wireless_2||
-|Aqara|Gas Sensor|[JT-BZ-01AQ/A](https://home.miot-spec.com/s/lumi.sensor_gas.acn02)|status, fault, gas_density, sensitivity, remain_days||
-|Aqara|L1-350 Ceiling Light|[ZNXDD01LM](https://home.miot-spec.com/s/lumi.light.acn003)|light||
-|Aqara|Motion Sensor|[RTCGQ11LM](https://home.miot-spec.com/s/lumi.sensor_motion.aq2)|motion, illuminance, battery||
-|Aqara|Motion Sensor E1|[RTCGQ15LM](https://home.miot-spec.com/s/lumi.motion.acn001)|motion, illuminance, battery, battery_low||
-|Aqara|Opple Four Button CN|[WXCJKG12LM](https://home.miot-spec.com/s/lumi.remote.b486opcn01)|mode, action, battery, battery_low, chip_temperature||
-|Aqara|Opple MX480 CN|[XDD13LM](https://home.miot-spec.com/s/lumi.light.cwopcn03)|light||
-|Aqara|Opple MX650 CN|[XDD12LM](https://home.miot-spec.com/s/lumi.light.cwopcn02)|light||
-|Aqara|Opple Six Button CN|[WXCJKG13LM](https://home.miot-spec.com/s/lumi.remote.b686opcn01)|mode, action, battery, battery_low, chip_temperature||
-|Aqara|Opple Two Button CN|[WXCJKG11LM](https://home.miot-spec.com/s/lumi.remote.b286opcn01)|mode, action, battery, battery_low, chip_temperature||
-|Aqara|Plug EU|[SP-EUC01](https://home.miot-spec.com/s/lumi.plug.maeu01)|plug, energy, power, led, power_on_state||
-|Aqara|Precision Motion Sensor EU|[RTCGQ13LM](https://home.miot-spec.com/s/lumi.motion.agl04)|motion, battery, sensitivity, blind_time, battery_low, idle_time||
-|Aqara|Relay CN|[LLKZMK11LM](https://home.miot-spec.com/s/lumi.relay.c2acn01)|channel_1, channel_2, current, power, voltage, energy, action, chip_temperature, interlock|4|
-|Aqara|Relay T1 CN (with N)|[DLKZMK11LM](https://home.miot-spec.com/s/lumi.switch.n0acn2)|switch, energy, power, led, power_on_state||
-|Aqara|Relay T1 EU (no N)|[SSM-U02](https://home.miot-spec.com/s/lumi.switch.l0agl1)|switch, chip_temperature||
-|Aqara|Relay T1 EU (with N)|[SSM-U01](https://home.miot-spec.com/s/lumi.switch.n0agl1)|switch, energy, power, led, power_on_state||
-|Aqara|Roller Shade|[ZNGZDJ11LM](https://home.miot-spec.com/s/lumi.curtain.aq2)|motor||
-|Aqara|Roller Shade E1 CN|[ZNJLBL01LM](https://home.miot-spec.com/s/lumi.curtain.acn002)|motor, battery, motor_reverse, battery_low, battery_voltage, battery_charging, motor_speed||
-|Aqara|Shake Button|[WXKG12LM](https://home.miot-spec.com/s/lumi.sensor_switch.aq3)|action, battery, battery_low, chip_temperature||
-|Aqara|Single Wall Button CN|[WXKG03LM](https://home.miot-spec.com/s/lumi.remote.b186acn01)|action, battery, battery_low, chip_temperature||
-|Aqara|Single Wall Button D1 CN|[WXKG06LM](https://home.miot-spec.com/s/lumi.remote.b186acn02)|action, battery, battery_low, chip_temperature||
-|Aqara|Single Wall Button E1|[WXKG20LM](https://home.miot-spec.com/s/lumi.remote.acn007)|action, battery||
-|Aqara|Single Wall Button E1 CN|[WXKG16LM](https://home.miot-spec.com/s/lumi.remote.acn003)|action, battery||
-|Aqara|Single Wall Switch|[QBKG04LM](https://home.miot-spec.com/s/lumi.ctrl_neutral1)|switch, action, wireless, led||
-|Aqara|Single Wall Switch|[QBKG11LM](https://home.miot-spec.com/s/lumi.ctrl_ln1.aq1)|switch, power, energy, action, wireless, led||
-|Aqara|Single Wall Switch D1 CN (no N)|[QBKG21LM](https://home.miot-spec.com/s/lumi.switch.b1lacn02)|switch, action, wireless, led||
-|Aqara|Single Wall Switch D1 CN (with N)|[QBKG23LM](https://home.miot-spec.com/s/lumi.switch.b1nacn02)|switch, power, energy, action, wireless, led||
-|Aqara|Single Wall Switch E1 (no N)|[QBKG38LM](https://home.miot-spec.com/s/lumi.switch.b1lc04)|switch, action, led, power_on_state, wireless, mode||
-|Aqara|Single Wall Switch E1 (with N)|[QBKG40LM](https://home.miot-spec.com/s/lumi.switch.b1nc01)|switch, action, led, led_reverse, power_on_state, wireless||
-|Aqara|Single Wall Switch H1 CN (no N)|[QBKG27LM](https://home.miot-spec.com/s/lumi.switch.l1acn1)|switch, action, led, power_on_state, wireless||
-|Aqara|Single Wall Switch H1 CN (with N)|[QBKG30LM](https://home.miot-spec.com/s/lumi.switch.n1acn1)|switch, energy, power, action, led, led_reverse, power_on_state, wireless||
-|Aqara|Single Wall Switch H1 EU (no N)|[WS-EUK01](https://home.miot-spec.com/s/lumi.switch.l1aeu1)|switch, action, led, power_on_state, wireless||
-|Aqara|Single Wall Switch H1 EU (with N)|[WS-EUK03](https://home.miot-spec.com/s/lumi.switch.n1aeu1)|switch, energy, power, action, led, led_reverse, power_on_state, wireless||
-|Aqara|Smoke Sensor|[JY-GZ-01AQ](https://home.miot-spec.com/s/lumi.sensor_smoke.acn03)|smoke, problem, smoke_density, battery_low, battery_voltage, led||
-|Aqara|TH Sensor|[WSDCGQ11LM](https://home.miot-spec.com/s/lumi.weather)|temperature, humidity, battery, pressure||
-|Aqara|TH Sensor T1|[WSDCGQ12LM](https://home.miot-spec.com/s/lumi.sensor_ht.agl02)|temperature, humidity, pressure, battery, battery_low||
-|Aqara|Thermostat E1|[SRTS-A01](https://home.miot-spec.com/s/lumi.airrtc.agl001)|climate, antifreeze_temp, window_detection, valve_calibration, valve_notification, child_lock, find_device, battery, chip_temperature||
-|Aqara|Thermostat S2 CN|[KTWKQ03ES](https://home.miot-spec.com/s/lumi.airrtc.tcpecn02)|climate||
-|Aqara|Triple Wall Switch D1 CN (no N)|[QBKG25LM](https://home.miot-spec.com/s/lumi.switch.l3acn3)|channel_1, channel_2, channel_3, action, wireless_1, wireless_2, wireless_3, power_on_state, led||
-|Aqara|Triple Wall Switch D1 CN (with N)|[QBKG26LM](https://home.miot-spec.com/s/lumi.switch.n3acn3)|channel_1, channel_2, channel_3, power, voltage, energy, action, wireless_1, wireless_2, wireless_3, power_on_state, led||
-|Aqara|Triple Wall Switch H1 CN (no N)|[QBKG29LM](https://home.miot-spec.com/s/lumi.switch.l3acn1)|channel_1, channel_2, channel_3, action, led, power_on_state, wireless_1, wireless_2, wireless_3||
-|Aqara|Triple Wall Switch H1 CN (with N)|[QBKG32LM](https://home.miot-spec.com/s/lumi.switch.n3acn1)|channel_1, channel_2, channel_3, energy, power, action, led, led_reverse, power_on_state, wireless_1, wireless_2, wireless_3||
-|Aqara|Vibration Sensor|[DJT11LM](https://home.miot-spec.com/s/lumi.vibration.aq1)|action, battery, battery_low|3|
-|Aqara|Wall Outlet|[QBCZ11LM](https://home.miot-spec.com/s/lumi.ctrl_86plug.aq1)|outlet, power, energy, chip_temperature, power_on_state, charge_protect, led, wireless||
-|Aqara|Water Leak Sensor|[SJCGQ11LM](https://home.miot-spec.com/s/lumi.sensor_wleak.aq1)|moisture, battery||
-|Honeywell|Gas Sensor|[JTQJ-BF-01LM/BW](https://home.miot-spec.com/s/lumi.sensor_natgas)|gas_density, gas, sensitivity|4|
-|Honeywell|Smoke Sensor|[JTYJ-GD-01LM/BW](https://home.miot-spec.com/s/lumi.sensor_smoke)|smoke_density, smoke, battery||
-|IKEA|Bulb E14 400 lm|[LED1536G5](https://home.miot-spec.com/s/ikea.light.led1536g5)|light||
-|IKEA|Bulb E14 400 lm|[LED1649C5](https://home.miot-spec.com/s/ikea.light.led1649c5)|light||
-|IKEA|Bulb E27 1000 lm|[LED1623G12](https://home.miot-spec.com/s/ikea.light.led1623g12)|light||
-|IKEA|Bulb E27 950 lm|[LED1546G12](https://home.miot-spec.com/s/ikea.light.led1546g12)|light||
-|IKEA|Bulb E27 980 lm|[LED1545G12](https://home.miot-spec.com/s/ikea.light.led1545g12)|light||
-|IKEA|Bulb GU10 400 lm|[LED1537R6](https://home.miot-spec.com/s/ikea.light.led1537r6)|light||
-|IKEA|Bulb GU10 400 lm|[LED1650R5](https://home.miot-spec.com/s/ikea.light.led1650r5)|light||
-|Xiaomi|Button|[WXKG01LM](https://home.miot-spec.com/s/lumi.sensor_switch)|action, battery, battery_low, chip_temperature||
-|Xiaomi|Door/Window Sensor|[MCCGQ01LM](https://home.miot-spec.com/s/lumi.sensor_magnet)|contact, battery, battery_low, chip_temperature||
-|Xiaomi|Light Sensor EU|[GZCGQ01LM](https://home.miot-spec.com/s/lumi.sen_ill.mgl01)|illuminance, battery||
-|Xiaomi|Motion Sensor|[RTCGQ01LM](https://home.miot-spec.com/s/lumi.sensor_motion)|motion, battery, battery_low, chip_temperature||
-|Xiaomi|Plug CN|[ZNCZ02LM](https://home.miot-spec.com/s/lumi.plug)|plug, power, energy, chip_temperature, power_on_state, charge_protect, led|5|
-|Xiaomi|Plug EU|[ZNCZ04LM](https://home.miot-spec.com/s/lumi.plug.mmeu01)|plug, power, voltage, energy, chip_temperature||
-|Xiaomi|Plug TW|[ZNCZ03LM](https://home.miot-spec.com/s/lumi.plug.mitw01)|plug, power, energy, chip_temperature, power_on_state, charge_protect, led|5|
-|Xiaomi|Plug US|[ZNCZ12LM](https://home.miot-spec.com/s/lumi.plug.maus01)|plug, power, energy, chip_temperature, power_on_state, charge_protect, led|5|
-|Xiaomi|TH Sensor|[WSDCGQ01LM](https://home.miot-spec.com/s/lumi.sensor_ht)|temperature, humidity, battery, battery_low, chip_temperature||
-
-### Supported Other Zigbee
-
-Total devices: 27
-
-|Brand|Name|Model|Entities|S|
-|---|---|---|---|---|
-|BlitzWolf|Plug|[BW-SHP13](https://www.zigbee2mqtt.io/supported-devices/#s=BW-SHP13)|plug, voltage, current, power, energy, power_on_state|5|
-|IKEA|Bulb E12 WS 450lm|[LED1903C5](https://www.zigbee2mqtt.io/supported-devices/#s=LED1903C5)|light||
-|IKEA|Bulb E14 WS opal 600lm|[LED1738G7](https://www.zigbee2mqtt.io/supported-devices/#s=LED1738G7)|light||
-|IKEA|Bulb E27 1000 lm|[LED1623G12](https://www.zigbee2mqtt.io/supported-devices/#s=LED1623G12)|light|3|
-|IKEA|Bulb E27 806 lm|[LED1836G9](https://www.zigbee2mqtt.io/supported-devices/#s=LED1836G9)|light|3|
-|Ksentry Electronics|OnOff Controller|[KS-SM001](https://www.zigbee2mqtt.io/supported-devices/#s=KS-SM001)|switch||
-|Neo|Power Plug|[NAS-WR01B](https://www.zigbee2mqtt.io/supported-devices/#s=NAS-WR01B)|plug, voltage, current, power, energy, power_on_state, led, child_mode, mode|5|
-|Philips|Hue motion sensor|[9290012607](https://www.zigbee2mqtt.io/supported-devices/#s=9290012607)|occupancy, illuminance, temperature, battery, occupancy_timeout|4|
-|Sonoff|Button|[SNZB-01](https://www.zigbee2mqtt.io/supported-devices/#s=SNZB-01)|action, battery|5|
-|Sonoff|Door/Window Sensor|[SNZB-04](https://www.zigbee2mqtt.io/supported-devices/#s=SNZB-04)|contact, battery|5|
-|Sonoff|Mini|[ZBMINI](https://www.zigbee2mqtt.io/supported-devices/#s=ZBMINI)|switch|5|
-|Sonoff|Motion Sensor|[SNZB-03](https://www.zigbee2mqtt.io/supported-devices/#s=SNZB-03)|occupancy, battery|5|
-|Sonoff|TH Sensor|[SNZB-02](https://www.zigbee2mqtt.io/supported-devices/#s=SNZB-02)|temperature, humidity, battery||
-|Tuya|Double Switch|[TS0012](https://www.zigbee2mqtt.io/supported-devices/#s=TS0012)|channel_1, channel_2, power_on_state, mode|5|
-|Tuya|Motion Sensor|[IH012-RT01](https://www.zigbee2mqtt.io/supported-devices/#s=IH012-RT01)|occupancy||
-|Tuya|Motion Sensor|[TYZPIR-02](https://www.zigbee2mqtt.io/supported-devices/#s=TYZPIR-02)|occupancy, battery|5|
-|Tuya|Relay|[TS0001](https://www.zigbee2mqtt.io/supported-devices/#s=TS0001)|switch, power_on_state|4|
-|Tuya|Relay|[TS0002](https://www.zigbee2mqtt.io/supported-devices/#s=TS0002)|channel_1, channel_2, power_on_state, mode|3|
-|Tuya|Relay|[TS0003](https://www.zigbee2mqtt.io/supported-devices/#s=TS0003)|channel_1, channel_2, channel_3, power_on_state, mode|3|
-|Tuya|Relay|[TS0004](https://www.zigbee2mqtt.io/supported-devices/#s=TS0004)|channel_1, channel_2, channel_3, channel_4, power_on_state, mode|3|
-|Tuya|Single Switch (no N)|[TS0011](https://www.zigbee2mqtt.io/supported-devices/#s=TS0011)|switch|5|
-|Tuya|TH sensor|[IH-K009](https://www.zigbee2mqtt.io/supported-devices/#s=IH-K009)|temperature, humidity|3|
-|Tuya|TH sensor|[TT001ZAV20](https://www.zigbee2mqtt.io/supported-devices/#s=TT001ZAV20)|temperature, humidity|3|
-|Tuya|Wireless Four Button|[RSH-Zigbee-SC04](https://www.zigbee2mqtt.io/supported-devices/#s=RSH-Zigbee-SC04)|action, battery, mode||
-|Unknown|Dimmer|[LXZ8-02A](https://www.zigbee2mqtt.io/supported-devices/#s=LXZ8-02A)|light|3|
-|UseeLink|Power Strip|[SM-SO306E](https://www.zigbee2mqtt.io/supported-devices/#s=SM-SO306E)|channel_1, channel_2, channel_3, channel_4, usb, power_on_state|5|
-|eWeLink|Zigbee OnOff Controller|[SA-003-Zigbee](https://www.zigbee2mqtt.io/supported-devices/#s=SA-003-Zigbee)|switch|5|
-
-### Supported Xiaomi BLE
-
-Total devices: 42
-
-|Brand|Name|Model|Entities|S|
-|---|---|---|---|---|
-|Aqara|Door Lock D100|[ZNMS20LM](https://home.miot-spec.com/s/3051)|*||
-|Aqara|Door Lock N100 (Bluetooth)|[ZNMS16LM](https://home.miot-spec.com/s/1694)|*||
-|Aqara|Door Lock N200|[ZNMS17LM](https://home.miot-spec.com/s/1695)|*||
-|Honeywell|Smoke Alarm|[JTYJ-GD-03MI](https://home.miot-spec.com/s/2455)|action, smoke, battery||
-|Linptech|Motion Sensor 2|[HS1BB](https://home.miot-spec.com/s/10987)|motion, illuminance, battery, idle_time||
-|Linptech|Wireless Button|[K11](https://home.miot-spec.com/s/7184)|action, battery||
-|Loock|Door Lock Classic 2X Pro|[loock.lock.cc2xpro](https://home.miot-spec.com/s/3343)|*||
-|Unknown|Lock M2|[ydhome.lock.m2silver](https://home.miot-spec.com/s/955)|*||
-|Xiaomi|Alarm Clock|[CGD1](https://home.miot-spec.com/s/1398)|temperature, humidity, battery*||
-|Xiaomi|Door Lock|[MJZNMS02LM](https://home.miot-spec.com/s/794)|*||
-|Xiaomi|Door Lock|[MJZNMS03LM](https://home.miot-spec.com/s/1433)|*||
-|Xiaomi|Door Lock|[XMZNMST02YD](https://home.miot-spec.com/s/2444)|action, battery, lock, opening||
-|Xiaomi|Door Lock 1S|[XMZNMS08LM](https://home.miot-spec.com/s/3641)|action, battery, doorbell, contact||
-|Xiaomi|Door/Window Sensor 2|[MCCGQ02HL](https://home.miot-spec.com/s/2443)|contact, light, battery||
-|Xiaomi|Face Recognition Smart Door Lock|[XMZNMS09LM](https://home.miot-spec.com/s/6017)|action, battery, doorbell, contact, lock||
-|Xiaomi|Face Recognition Smart Door Lock X|[XMZNMS06LM](https://home.miot-spec.com/s/3685)|action, battery, contact, lock||
-|Xiaomi|Flower Care|[HHCCJCY01](https://home.miot-spec.com/s/152)|temperature, moisture, conductivity, illuminance, battery*||
-|Xiaomi|Flower Pot|[HHCCPOT002](https://home.miot-spec.com/s/349)|moisture, conductivity, battery*||
-|Xiaomi|Kettle|[YM-K1501](https://home.miot-spec.com/s/131)|power, temperature||
-|Xiaomi|Magic Cube|[XMMF01JQD](https://home.miot-spec.com/s/1249)|action||
-|Xiaomi|Mosquito Repellent|[WX08ZM](https://home.miot-spec.com/s/1034)|*||
-|Xiaomi|Motion Sensor 2|[RTCGQ02LM](https://home.miot-spec.com/s/2701)|motion, light, battery, action, idle_time||
-|Xiaomi|Night Light 2|[MJYD02YL-A](https://home.miot-spec.com/s/2038)|battery, light, motion, idle_time||
-|Xiaomi|Qingping Door Sensor|[CGH1](https://home.miot-spec.com/s/982)|*||
-|Xiaomi|Qingping Motion Sensor|[CGPR1](https://home.miot-spec.com/s/2691)|motion, light, illuminance, battery, idle_time||
-|Xiaomi|Qingping TH Lite|[CGDK2](https://home.miot-spec.com/s/1647)|temperature, humidity, battery*||
-|Xiaomi|Qingping TH Sensor|[CGG1](https://home.miot-spec.com/s/839)|temperature, humidity, battery*||
-|Xiaomi|Safe Box|[BGX-5/X1-3001](https://home.miot-spec.com/s/2480)|*||
-|Xiaomi|TH Clock|[LYWSD02MMC](https://home.miot-spec.com/s/1115)|temperature, humidity, battery*||
-|Xiaomi|TH Sensor|[LYWSDCGQ/01ZM](https://home.miot-spec.com/s/426)|temperature, humidity, battery*||
-|Xiaomi|TH Sensor|[XMWSDJ04MMC](https://home.miot-spec.com/s/4611)|temperature, humidity, battery*||
-|Xiaomi|TH Sensor 2|[LYWSD03MMC](https://home.miot-spec.com/s/1371)|temperature, humidity, battery*||
-|Xiaomi|TH Sensor 3|[MJWSDO5MMC](https://home.miot-spec.com/s/10290)|temperature, humidity||
-|Xiaomi|Toothbrush T500|[MES601](https://home.miot-spec.com/s/1161)|*||
-|Xiaomi|Toothbrush T700|[MES604](https://home.miot-spec.com/s/2054)|*||
-|Xiaomi|Viomi Kettle|[V-SK152](https://home.miot-spec.com/s/1116)|power, temperature||
-|Xiaomi|Water Leak Sensor|[SJWS01LM](https://home.miot-spec.com/s/2147)|water_leak, battery, action||
-|Xiaomi|Wireless Button|[XMWXKG01LM](https://home.miot-spec.com/s/9095)|action, battery||
-|Xiaomi|Wireless Button (Double)|[XMWXKG01YL](https://home.miot-spec.com/s/6473)|action, battery||
-|Xiaomi|ZenMeasure Clock|[MHO-C303](https://home.miot-spec.com/s/1747)|temperature, humidity, battery*||
-|Xiaomi|ZenMeasure TH|[MHO-C401](https://home.miot-spec.com/s/903)|temperature, humidity, battery*||
-|Yeelight|Button S1|[YLAI003](https://home.miot-spec.com/s/1983)|action, battery||
-
-### Supported Xiaomi Mesh
-
-Total devices: 49
-
-|Brand|Name|Model|Entities|S|
-|---|---|---|---|---|
-|Gosund|Mesh Triple Wall Switch S6AM|[cuco.switch.s6amts](https://home.miot-spec.com/s/6266)|channel_1, channel_2, channel_3, wireless_1, wireless_2, wireless_3, led, mode, action||
-|Gosund|Mesh double Wall Switch S5AM|[cuco.switch.s5amts](https://home.miot-spec.com/s/6267)|left_switch, right_switch, wireless_1, wireless_2, led, mode||
-|LeMesh|Mesh Downlight|[lemesh.light.wy0c05](https://home.miot-spec.com/s/2351)|light||
-|LeMesh|Mesh Light|[lemesh.light.wy0c08](https://home.miot-spec.com/s/3531)|light||
-|LeMesh|Mesh Light (RF ready)|[lemesh.light.wy0c02](https://home.miot-spec.com/s/1910)|light||
-|LeMesh|Mesh Light (RF ready)|[lemesh.light.wy0c07](https://home.miot-spec.com/s/3164)|light||
-|Linptech|Linptech Presence Sensor|[hb01](https://home.miot-spec.com/s/10441)|occupancy, no_one_determine_time, has_someone_duration, idle_time, illuminance, approach_aloof, shielding_distance, body_distance, approach_distance, led||
-|PTX|Mesh Double Wall Switch|[090615.switch.meshk2](https://home.miot-spec.com/s/3789)|channel_1, channel_2||
-|PTX|Mesh Double Wall Switch|[PTX-SK2M](https://home.miot-spec.com/s/2257)|channel_1, channel_2, led, wireless_1, wireless_2||
-|PTX|Mesh Downlight|[090615.light.mlig01](https://home.miot-spec.com/s/3416)|light||
-|PTX|Mesh Downlight|[090615.light.mlig02](https://home.miot-spec.com/s/4924)|light||
-|PTX|Mesh Single Wall Switch|[PTX-SK1M](https://home.miot-spec.com/s/2258)|switch, led, wireless||
-|PTX|Mesh Triple Wall Switch|[090615.switch.meshk3](https://home.miot-spec.com/s/3788)|channel_1, channel_2, channel_3||
-|PTX|Mesh Triple Wall Switch|[PTX-SK3M](https://home.miot-spec.com/s/3878)|channel_1, channel_2, channel_3, led, wireless_1, wireless_2, wireless_3||
-|PTX|Mesh Triple Wall Switch|[PTX-TK3/M](https://home.miot-spec.com/s/2093)|channel_1, channel_2, channel_3, led, wireless_1, wireless_2, wireless_3||
-|Unknown|Mesh Lightstrip (RF ready)|[crzm.light.wy0a01](https://home.miot-spec.com/s/2293)|light||
-|Unknown|Mesh Switch|[dwdz.switch.sw0a01](https://home.miot-spec.com/s/4252)|switch||
-|Unknown|Mesh Switch Controller|[lemesh.switch.sw0a01](https://home.miot-spec.com/s/2007)|switch||
-|Unknown|Mesh Switch Controller|[lemesh.switch.sw0a02](https://home.miot-spec.com/s/3169)|switch||
-|Xiaomi|Electrical Outlet|[ZNCZ01ZM](https://home.miot-spec.com/s/3083)|outlet, power, led, power_protect, power_value||
-|Xiaomi|Mesh Bulb|[MJDP09YL](https://home.miot-spec.com/s/1771)|light, flex_switch, power_on_state|4|
-|Xiaomi|Mesh Double Wall Switch|[DHKG02ZM](https://home.miot-spec.com/s/1946)|channel_1, channel_2, led, wireless_1, wireless_2, action||
-|Xiaomi|Mesh Double Wall Switch|[ZNKG02HL](https://home.miot-spec.com/s/2716)|channel_1, channel_2, humidity, temperature, wireless_1, wireless_2, baby_mode, action||
-|Xiaomi|Mesh Double Wall Switch (Neutral Wire)|[XMQBKG02LM](https://home.miot-spec.com/s/6380)|channel_1, channel_2, led, wireless_1, wireless_2, action||
-|Xiaomi|Mesh Downlight|[MJTS01YL/MJTS003](https://home.miot-spec.com/s/1772)|light, flex_switch, power_on_state|4|
-|Xiaomi|Mesh Group|[yeelink.light.mb1grp](https://home.miot-spec.com/s/1054)|group|4|
-|Xiaomi|Mesh Night Light|[MJYD05YL](https://home.miot-spec.com/s/4736)|switch, light||
-|Xiaomi|Mesh Power Strip 2|[XMZNCXB01QM](https://home.miot-spec.com/s/4896)|switch, mode, chip_temperature, energy, power, voltage, current||
-|Xiaomi|Mesh Single Wall Switch|[ZNKG01HL](https://home.miot-spec.com/s/2715)|switch, humidity, temperature, wireless, baby_mode, action||
-|Xiaomi|Mesh Triple Wall Switch|[DHKG05](https://home.miot-spec.com/s/5937)|channel_1, channel_2, channel_3, led, wireless_1, wireless_2, wireless_3, action, anti_flick||
-|Xiaomi|Mesh Triple Wall Switch|[ZNKG03HL/ISA-KG03HL](https://home.miot-spec.com/s/2717)|channel_1, channel_2, channel_3, humidity, temperature, wireless_1, wireless_2, wireless_3, baby_mode, action||
-|Xiaomi|Mesh Triple Wall Switch (Neutral Wire)|[XMQBKG03LM](https://home.miot-spec.com/s/6381)|channel_1, channel_2, channel_3, led, wireless_1, wireless_2, wireless_3, action||
-|Xiaomi|Mesh Wall Switch|[DHKG01ZM](https://home.miot-spec.com/s/1945)|switch, led, wireless, action||
-|Xiaomi|Mesh Wall Switch (Neutral Wire)|[XMQBKG01LM](https://home.miot-spec.com/s/6379)|switch, led, wireless, action||
-|Xiaomi|Mosquito Repeller 2|[WX10ZM](https://home.miot-spec.com/s/4160)|switch, battery, supply, led, power_mode||
-|Xiaomi|Smart Charging Table Lamp|[MJTD04YL](https://home.miot-spec.com/s/4737)|light, battery, battery_charging||
-|Xiaomi|Smart Curtain Motor|[MJSGCLBL01LM](https://home.miot-spec.com/s/3129)|motor, battery, motor_reverse, battery_charging, light||
-|XinGuang|Mesh Switch|[wainft.switch.sw0a01](https://home.miot-spec.com/s/3150)|switch||
-|XinGuang|Smart Light|[LIBMDA09X](https://home.miot-spec.com/s/2584)|light||
-|YKGC|LS Smart Curtain Motor|[LSCL](https://home.miot-spec.com/s/5195)|motor, motor_reverse, on||
-|Yeelight|Mesh Bulb E14|[YLDP09YL](https://home.miot-spec.com/s/995)|light, flex_switch, power_on_state|4|
-|Yeelight|Mesh Bulb E27|[YLDP10YL](https://home.miot-spec.com/s/996)|light, flex_switch, power_on_state|4|
-|Yeelight|Mesh Bulb M2|[YLDP25YL/YLDP26YL](https://home.miot-spec.com/s/2342)|light, flex_switch, power_on_state|4|
-|Yeelight|Mesh Downlight|[YLSD01YL](https://home.miot-spec.com/s/948)|light, flex_switch, power_on_state|4|
-|Yeelight|Mesh Downlight M1|[YLSD001](https://home.miot-spec.com/s/3291)|light, flex_switch, power_on_state|4|
-|Yeelight|Mesh Downlight M2|[YLTS02YL/YLTS04YL](https://home.miot-spec.com/s/2076)|light, flex_switch, power_on_state|4|
-|Yeelight|Mesh Spotlight|[YLSD04YL](https://home.miot-spec.com/s/997)|light, flex_switch, power_on_state|4|
-|ZNSN|Mesh Wall Switch ML3|[zm3d](https://home.miot-spec.com/s/8255)|channel_1, channel_2, channel_3||
-|ZiQing|IZQ Presence Sensor Lite|[IZQ-24](https://home.miot-spec.com/s/10356)|occupancy, no_one_determine_time, has_someone_duration, idle_time, illuminance, distance, led, detect_range, pir, occupancy_status||
-
-<!--supported-->
-
-## Installation
-
-**Method 1.** [HACS](https://hacs.xyz/) > Integrations > Plus > **XiaomiGateway3** > Install
-
-**Method 2.** Manually copy `xiaomi_gateway3` folder from [latest release](https://github.com/AlexxIT/XiaomiGateway3/releases/latest) to `/config/custom_components` folder.
-
-## Configuration
-
-**Video DEMO**
-
-[![Mi Cloud authorization in Home Assistant with Xiaomi Gateway 3](https://img.youtube.com/vi/rU_ATCVKx78/mqdefault.jpg)](https://www.youtube.com/watch?v=rU_ATCVKx78)
-
-[Settings](https://my.home-assistant.io/redirect/config/) > [Integrations](https://my.home-assistant.io/redirect/integrations/) > Add Integration > [Xiaomi Gateway3](https://my.home-assistant.io/redirect/config_flow_start/?domain=xiaomi_gateway3)
-
-If the integration is not in the list, you need to clear the browser cache.
-
-You need to install integration two times:
-
-1. Cloud version. It used ONLY to load tokens and names for your devices from cloud.
-2. Gateway. It adds your gateway and all connected Zigbee, BLE and Mesh devices.
-
-You may skip 1st step if you know token for you Gateway. If you have multiple Gateways - repeat step 2 for each of them.
-
-**ATTENTION:** If you using two Hass with one gateway - you should use same integration version on both of them! 
-
-## Network configuration 
-
-All settings are **important** or you may have an unstable operation of the gateway.
-
-- **Shared LAN** between Gateway and Hass server. You may use VPN, but both IP-address should be in **same network subnet**!
-- **Open ping** (accept ICMP) from Gateway to Router
-- **Fixed IP-address** for Gateway on your Router
-- Wi-Fi Router settings:
-   - **Fixed channel** from 1 to 11
-   - Channel width: **20MHz** (don't use 40MHz)
-   - Authentication: WPA2 (don't use WPA3)
-- MikroTik Router settings:
-   - Wireless > Security Profiles > Group Key Update: **01:00:00** (1 hour or more)
-- Keenetic Router settings: 
-   - Disable "[Airtime Fairness](https://help.keenetic.com/hc/en-us/articles/360009149400)" for 2.4GHz
-   - Disable "[256-QAM](https://help.keenetic.com/hc/en-us/articles/4402854785170)" for 2.4GHz
-
-With the following settings the operation of the gateway may be **unstable**: different subnets, closed ping to router, Wi-Fi channel 40MHz, WPA3.
+**Delete device** - manual call leave command for Zigbee devices. **Important!** Hass device will be automatically removed only when device leave network. You need to wake up the battery device so it can receive leave command.
 
 ## Statistics table
 
@@ -444,13 +271,11 @@ With the following settings the operation of the gateway may be **unstable**: di
 4. Add new Lovelace card:
    - [example 1](https://gist.github.com/AlexxIT/120f20eef4f39071e67f698207490db9)
    - [example 2](https://github.com/avbor/HomeAssistantConfig/blob/master/lovelace/views/vi_radio_quality_gw3.yaml)
+   - [example 3](https://gist.github.com/DJTerentjev/c8733478c616524a8db539565c2d669e)
 
 **Gateway binary sensor**
 
 - sensor shows connection to gateway, so you can check the stability of your Wi-Fi
-- **bluetooth_tx/_rx** - amount of bytes read and transmitted via BT serial port
-- **bluetooth_oe** - amount of errors when reading data via BT serial port
-- **zigbee_tx/_rx/_oe** - same for zigbee serial port
 - **radio_tx_power** - zigbee chip power
 - **radio_channel** - zigbee chip channel
 - **free_mem** - gateway free memory in bytes
@@ -458,51 +283,26 @@ With the following settings the operation of the gateway may be **unstable**: di
 - **rssi** - gateway Wi-Fi signal strength
 - **uptime** - gateway uptime after reboot
 
-**Zigbee sensor**
-
-- sensor shows time of receiving the last message from this device
-- **ieee** - zigbee device "long" address
-- **nwk** - zigbee device "short" address
-- **available** - device available state
-- **parent** - `0xABCD` if device connected to zigbee router or `-` if device connected to gateway or `?` for unknown parent 
-- **type** - zigbee `router` or end `device` or `?` for unknown type
-- **msg_received** - amount of messages received from the device
-- **msg_missed** - amount of unreceived messages from the device, calculated using the sequence number of messages
-- **linkquality** - zigbee signal quality, below 100 is very weak
-- **rssi** - zigbee signal quality, no recommendations
-- **last_msg** - type of last received message
-- **new_resets** - the number of device reboots since Hass reboot, supported in some Xiaomi/Aqara devices
-
-**BLE and Mesh sensor**
-
-- sensor shows time of receiving the last message from this device
-- **mac** - device MAC address
-- **available** - device available state
-- **msg_received** - amount of messages received from the device
-- **last_msg** - type of last received message
+Read more about additional attributes from [openmiio](https://github.com/AlexxIT/openmiio_agent#openmiioreport).
 
 ## Gateway controls
 
-The old version of integration used two switches, pair and firmware_lock. If you still have them after the upgrade, remove them manually.
-
-The new version has two drop-down lists (select entities) - command and data.
-
 Available commands:
 
-- **Idle** - reset the command select to the default state
-- **Zigbee Pair** - start the process of adding a new zigbee device
+- **Gateway run FTP** - enable FTP on gateway
+- **Gateway reboot** - reboot gateway
+- **Gateway disable/enable** - just for test, so you can check gateway offline logic
+- **OpenmiIO reload** - restart [openmiio](https://github.com/AlexxIT/openmiio_agent) app on gateway
+- **Zigbee pairing** - start the process of adding a new zigbee device
    - you can also start the process by pressing the physical button on the gateway three times
    - you can also start the process from the Mi Home app
-- **Zigbee Bind** - configure the bindings of zigbee devices, only if they support it
-- **Zigbee OTA** - try to update the zigbee device if there is firmware for it
-- **Zigbee Config** - start the initial setup process for the device
-   - the battery devices must first be woken up manually
-- **Zigbee Remove** - start the zigbee device removal process
-- **Zigbee Table Update** - update the zigbee stats table manually
-- **Firmware Lock** - block the gateway firmware update ([read more](#supported-firmwares))
-- **Gateway Reboot** - reboot gateway
-- **Gateway Enable FTP** - enable FTP on gateway
-- **Gateway Dump Data** - save all gateway data in the Hass configuration folder
+- **Zigbee force pairing** - similar to default pairing, but without cloud verification of the device. So some unsupported lumi devices can be added this way. But they still won't work without a proper converter.
+- **Zigbee parent scan** - update the zigbee parents info manually (it updates automatically every 1h when stats sensors enabled)
+
+Only for Xiaomi Multimode Gateway 1:
+
+- **Gateway firmware Lock** - block the gateway firmware update ([read more](#supported-firmwares))
+- **Zigbee flash EZSP** - update zigbee chip firmare (incompatible with MiHome mode)
 
 ## Advanced config
 
@@ -512,15 +312,9 @@ Available commands:
 
 - **Host** - gateway IP-address, should be fixed on your Wi-Fi router
 - **Token** - gateway Mi Home token, changed only when you add gateway to Mi Home app
-- **Support Bluetooth devices** - enable processing BLE and Mesh devices data from gateway
+- **Key** - gateway secret key, [read more](https://github.com/AlexxIT/Blog/issues/13)
 - **Add statistic sensors** - [read more](#statistics-table)
 - **Debug logs** - enable different levels of logging ([read more](#debug-mode))
-
-Don't enable DANGER settings if you don't know what you doing.
-
-**[DANGER] Use storage in memory**
-
-Multi-Mode Gateway has an hardware problem with interruptions for zigbee and bluetooth serial data. You can lose zigbee or bluetooth data when writing to the gateway permanent memory. This setting reduces the amount of writing to the gateway's permanent memory. But if you restart the gateway at an bad moment - you may lose the newly added devices and have to add them again.
 
 ### Devices config
 
@@ -528,10 +322,9 @@ This options configured in the `configuration.yaml`. Section: `xiaomi_gateway3 >
 
 As a device you can specify:
 
-- IEEE - should be 18 symbols with `0x` and leading zeroes (for zigbee devices)
-- MAC - should be 12 symbols (for BLE and Mesh devices)
+- device UID - you can check it in the entities name
 - model - string for zigbee devices and number for BLE and Mesh devices
-- type - gateway, zigbee, ble, mesh
+- type - gateway, zigbee, ble, mesh, matter
 
 **Overwrite device model**
 
@@ -600,21 +393,36 @@ Attention! Template is calculated only at the start of the Hass.
 ```yaml
 xiaomi_gateway3:
   attributes_template: |
-    {% if attr in ('zigbee', 'ble', 'mesh') %}{{{
-      "device_name": device.info.name,
-      "device_fw_ver": device.fw_ver,
+    {% if attr in ('zigbee', 'ble', 'mesh') %}
+    {{{
+      "integration": "gw3",
+      "name": device.human_name,
+      "device_fw_ver": device.firmware,
       "device_model": device.model,
-      "device_market_model": device.info.model,
-      "gateway_name": gateway.info.name,
-      "gateway_fw_ver": gateway.fw_ver
-    }}}{% elif attr == 'gateway' %}{{{
-      "device_fw_ver": device.fw_ver,
-    }}}{% endif %}
+      "device_market_model": device.human_model,
+      "device_manufacturer": device.extra.market_brand,
+      "gate": gateway.human_name,
+      "gateway_model": gateway.model,
+      "gateway_fw_ver": gateway.firmware
+    }}}
+    {% elif attr == 'gateway' %}
+    {{{
+      "integration": "gw3",
+      "gate": gateway.human_name,
+      "gateway_model": gateway.human_model,
+      "gateway_fw_ver": gateway.firmware
+    }}}
+    {% elif attr == 'battery' %}
+    {{{
+      "integration": "gw3",
+      "name": device.human_name,
+      "gate": gateway.human_name,
+      "battery": "true"
+    }}}
+    {% endif %}
 ```
 
 ### Entities customize
-
-This options configured in the `configuration.yaml`. Section: `homeassistant > customize > entity_id`.
 
 **Occupancy timeout** for moving sensor.
 
@@ -625,42 +433,33 @@ This options configured in the `configuration.yaml`. Section: `homeassistant > c
 - **fast back timer** starts with doubled value if the person moves immediately after the timer is off
 
 ```yaml
-homeassistant:
-  customize:
-    binary_sensor.0x158d0003456789_motion:
+xiaomi_gateway3:
+  devices:
+    "0x00158d0003456789":
       occupancy_timeout: 180  # simple mode
-    binary_sensor.0x158d0003456788_motion:
+    "0x00158d0003456788":
       occupancy_timeout: -120  # fast back mode
-    binary_sensor.0x158d0003456787_motion:
+    "0x00158d0003456787":
       occupancy_timeout: [-120, 240, 300]  # progressive timer
-    binary_sensor.0x158d0003456786_motion:
+    "0x00158d0003456786":
       occupancy_timeout: 1  # for hacked 5 sec sensors
 ```
 
 **Invert state** for contact sensor.
 
 ```yaml
-homeassistant:
-  customize:
-    binary_sensor.0x158d0003456789_contact:
+xiaomi_gateway3:
+  devices:
+    "0x00158d0003456789":
       invert_state: 1  # any non-empty value will reverse the logic
-```
-
-**Ignore offline** device status.
-
-```yaml
-homeassistant:
-  customize:
-    switch.0x158d0003456789_switch:
-      ignore_offline: 1  # any non-empty value
 ```
 
 **Zigbee bulb default transition**.
 
 ```yaml
-homeassistant:
-  customize:
-    light.0x86bd7fffe000000_light:
+xiaomi_gateway3:
+  devices:
+    "0x86bd7fffe0000000":
       default_transition: 5
 ```
 
@@ -684,6 +483,8 @@ Zigbee devices will not migrate from Mi Home to ZHA. You will need to pair them 
 
 ## Zigbee2MQTT Mode
 
+**IMPORTANT**. According to real user reviews zigbee2mqtt does not work well with EFR32 chips. More positive feedback when working with ZHA.
+
 [Zigbee2MQTT](https://www.zigbee2mqtt.io/) is a bigest project that support [hundreds](https://www.zigbee2mqtt.io/information/supported_devices.html) Zigbee devices from different vendors. And can be integrate with a lot of home automation projects.
 
 **Note:** The zigbee chip of this gateway (EFR32 EZSP) is supported in zigbee2mqtt in [experimental mode](https://www.zigbee2mqtt.io/guide/adapters/#experimental).
@@ -706,6 +507,8 @@ You can use this mode with thanks to [@kirovilya](https://github.com/kirovilya) 
 
 ## Zigbee custom firmware
 
+### Firmwares 6.6.2.0 and 6.7.10.0
+
 **Xiaomi Multimode Gateway** support flashing custom firmware for Zigbee chip. It works only with ZHA/z2m modes. And it can increase the stability of the network, because this gateway uses pretty glitchy hardware. The other gateways have no hardware problems and do not require custom zigbee firmware.
 
 You can flash custom firmware from Gateway select entity.
@@ -715,11 +518,15 @@ To return to MiHome mode - be sure to flash the default firmware!
 It is possible because of these people:
 
 - [@CODeRUS](https://github.com/CODeRUS) and [@zvldz](https://github.com/zvldz) - adapted the script to flash the chip
-- [@faronov](https://github.com/faronov) - complied a new version of firmware 
+- [@faronov](https://github.com/faronov) - complied a new version of firmware
+
+### Firmware 7.3.1.0 MultiPAN RCP
+
+[Read more](https://github.com/AlexxIT/XiaomiGateway3/issues/1328)
 
 ## Handle Button Actions
 
-Buttons, vibration sensor, cube, locks and other - create an action entity. The entity changes its **state** for a split second and returns to an empty state. The **attributes** contain useful data, they are not cleared after the event is triggered.
+Buttons, vibration sensor, cube, locks and other - create an action entity. The entity changes its **state** for half a second and returns to an empty state. The **attributes** contain useful data, they are not cleared after the event is triggered.
 
 Depending on the button model, its state may be:
 - single button: `single`, `double`, `triple`, `quadruple`, `many`, `hold`, `release`, `shake`
@@ -746,6 +553,22 @@ automation:
 <img src="assets/bluetooth_lock.png" width="810">
 
 Read more in [wiki](https://github.com/AlexxIT/XiaomiGateway3/wiki/Handle-BLE-Locks).
+
+## Xiaomi Multimode Gateway beeper
+
+You can run beeper/buzzer with service: 
+
+- duration in seconds
+- volume from 1 to 3
+- send `code: 0` for stop
+
+```yaml
+service: alarm_control_panel.alarm_trigger
+data:
+  code: "10,3"  # 10 seconds, volume 3
+target:
+  entity_id: alarm_control_panel.gateway_alarm
+```
 
 ## Obtain Mi Home device token
 
@@ -783,6 +606,10 @@ After rebooting the gateway, all changes will be reset. The component will launc
 
 ## Troubleshooting
 
+Put your Gateways and your child bluetooth/zigbee devices far away from **USB 3.0 devices and cables, SSDs, WiFi routers**, etc. USB3 hub can almost completely block the Zigbee signal from your Xiaomi Plug up to 20 centimeters away. 
+
+[![](https://img.youtube.com/vi/tHqZhNcFEvA/mqdefault.jpg)](https://www.youtube.com/watch?v=tHqZhNcFEvA)
+
 **Can't connect to gateway**
 
 - Check [network config](#network-configuration) readme section
@@ -812,11 +639,6 @@ Logging can be setup from:
 
 - [Settings](https://my.home-assistant.io/redirect/config/) > [Integrations](https://my.home-assistant.io/redirect/integrations/) > **Xiaomi Gateway 3** > Configure > Debug logs: Basic, MQTT, Zigbee > Refresh the Home Assistant web page.
 
-**View:**
-
-- [Settings](https://my.home-assistant.io/redirect/config/) > [Integrations](https://my.home-assistant.io/redirect/integrations/) > **Xiaomi Gateway 3** > Three dots > Known Issues
-- or [System information](https://my.home-assistant.io/redirect/system_health/) > **Xiaomi Gateway 3** > debug
-
 **2. Integration config (YAML)**
 
 Component can log different debug events from different gateways. You can set global `debug_mode` for all gateways or config custom modes for custom gateways from GUI.
@@ -827,18 +649,17 @@ Recommended config:
 xiaomi_gateway3:
   logger:
     filename: xiaomi_gateway3.log  # default empty
-    propagate: False  # if False - disable log to home-assistant.log and console, default True
-    max_bytes: 100000000  # file size, default 0
-    backup_count: 3  # file rotation count, default 0
-    debug_mode: true,miio,mqtt  # global modes for all gateways, default empty
+    propagate: False               # if False - disable log to home-assistant.log and console, default True
+    max_bytes: 100000000           # file size, default 0
+    backup_count: 3                # file rotation count, default 0
 ```
 
 Additional settings
 
 ```yaml
     level: debug  # default
-    mode: a  # a - append to file, w - write new file, default
-    format: "%(asctime)s %(message)s"  # default
+    mode: a       # a - append to file, w - write new file, default
+    format: "%(asctime)s %(levelname)s [%(name)s] %(message)s"  # default
 ```
 
 **3. Hass default config**
